@@ -1,31 +1,22 @@
 pipeline {
     agent any
-
     tools {
-        nodejs "NodeJS"
+        nodejs "NodeJS"   // Matches the name you gave in Global Tool Config
     }
-
     stages {
-        stage('Checkout') {
+        stage('Install') {
             steps {
-                git branch: 'test',
-                    url: 'https://github.com/adityayad01/lostandfoundplatform.git'
+                sh 'npm install'
             }
         }
-
-        stage('Install Dependencies') {
+        stage('Test') {
             steps {
-                dir('fullstack') {
-                    sh 'npm install'
-                }
+                sh 'npm test'
             }
         }
-
-        stage('Run Tests') {
+        stage('Build') {
             steps {
-                dir('fullstack') {
-                    sh 'npm test'
-                }
+                sh 'npm run build'
             }
         }
     }
