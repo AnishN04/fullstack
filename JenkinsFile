@@ -1,39 +1,48 @@
 pipeline {
     agent any
 
-    stages {
-        stage('Backend Install & Build') {
-            steps {
-                dir('backend') {
-                    bat 'npm install'
-                    bat 'npm run build'   // remove this if your backend doesn’t need build
-                }
-            }
-        }
-
-        stage('Frontend Install & Build') {
-            steps {
-                dir('frontend') {
-                    bat 'npm install'
-                    bat '''
-                        set "CI="
-                        npm run build
-                    '''
-                }
-            }
-        }
+    tools {
+        nodejs "NodeJS"
     }
 
-    post {
-        always {
-            echo 'Pipeline finished!'
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'test',
+                    url: 'https://github.com/ShanmukYadav/fullstack.git'
+            }
         }
-        success {
-            echo 'Build successful, archiving artifacts...'
-            archiveArtifacts artifacts: 'frontend/build/**', fingerprint: true
+
+        stage('Install Frontend Dependencies') {
+            steps {
+                dir('frontend') {
+                    bat 'npm install --no-audit --no-fund'
+                }
+            }
         }
-        failure {
-            echo 'Build failed!'
+
+        stage('Install Backend Dependencies') {
+            steps {
+                dir('backend') {
+                    bat 'npm install --no-audit --no-fund'
+                }
+            }
+        }
+
+        stage('Run Frontend Tests') {
+            steps {
+                dir('frontend') {
+                    bat 'npm test -- --passWithNoTests'
+                }
+            }
+        }
+
+        stage('Run Backend Tests') {
+            steps {
+                dir('backend') {
+                    bat 'npm test -- --passWithNoTests'
+                }
+            }
         }
     }
 }
