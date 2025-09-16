@@ -1,5 +1,6 @@
 pipeline {
     agent any
+
     stages {
         stage('Install') {
             steps {
@@ -20,9 +21,26 @@ pipeline {
         stage('Build') {
             steps {
                 dir('frontend') {
-                    bat 'npm run build'
+                    // Disable CI warnings-as-errors in Jenkins
+                    bat '''
+                        set "CI="
+                        npm run build
+                    '''
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished!'
+        }
+        success {
+            echo 'Build successful, archiving artifacts...'
+            archiveArtifacts artifacts: 'frontend/build/**', fingerprint: true
+        }
+        failure {
+            echo 'Build failed!'
         }
     }
 }
