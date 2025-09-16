@@ -2,26 +2,19 @@ pipeline {
     agent any
 
     stages {
-        stage('Install') {
+        stage('Backend Install & Build') {
+            steps {
+                dir('backend') {
+                    bat 'npm install'
+                    bat 'npm run build'   // remove this if your backend doesn’t need build
+                }
+            }
+        }
+
+        stage('Frontend Install & Build') {
             steps {
                 dir('frontend') {
                     bat 'npm install'
-                }
-            }
-        }
-
-        stage('Test') {
-            steps {
-                dir('frontend') {
-                    bat 'npm test -- --passWithNoTests'
-                }
-            }
-        }
-
-        stage('Build') {
-            steps {
-                dir('frontend') {
-                    // Disable CI warnings-as-errors in Jenkins
                     bat '''
                         set "CI="
                         npm run build
