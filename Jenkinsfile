@@ -1,23 +1,22 @@
 pipeline {
     agent any
-
+    tools {
+        nodejs "NodeJS"   // Matches the name you gave in Global Tool Config
+    }
     stages {
-        stage('Checkout') {
+        stage('Install') {
             steps {
-                git branch: 'master',
-                    url: 'https://github.com/adityayad01/fullstack.git'
+                bat 'npm install'
             }
         }
-
-        stage('Install Dependencies') {
+        stage('master') {
             steps {
-                sh 'npm install'
+                bat 'npm test'
             }
         }
-
-        stage('Run Tests') {
+        stage('Build') {
             steps {
-                sh 'npm test'
+                bat 'npm run build'
             }
         }
     }
